@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Login</title></head>
+<body>
+  <h2>Login</h2>
+  <form id="f">
+    <input name="email" type="email" placeholder="email" required />
+    <input name="password" type="password" placeholder="password" required />
+    <button>Entrar</button>
+  </form>
+  <p>Token:</p>
+  <textarea id="tok" rows="6" cols="60" readonly></textarea>
+  <script>
+    const f = document.getElementById('f'), tok = document.getElementById('tok');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(f);
+      const payload = Object.fromEntries(form.entries());
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        tok.value = data.token;
+        alert('Login OK. Rol: ' + data.role);
+      } else {
+        tok.value = JSON.stringify(data, null, 2);
+      }
+    });
+  </script>
+</body>
+</html>

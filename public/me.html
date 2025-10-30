@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Mi perfil</title></head>
+<body>
+  <h2>Mi perfil (GET /api/me)</h2>
+  <button id="btn">Cargar</button>
+  <pre id="out"></pre>
+  <hr>
+  <h3>Listado admin (GET /api/admin/usuarios)</h3>
+  <button id="admin">Cargar usuarios (admin)</button>
+  <pre id="out2"></pre>
+  <script>
+    const out = document.getElementById('out');
+    const out2 = document.getElementById('out2');
+    const btn = document.getElementById('btn');
+    const admin = document.getElementById('admin');
+    const token = localStorage.getItem('token') || '';
+
+    btn.addEventListener('click', async () => {
+      const res = await fetch('/api/me', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      out.textContent = await res.text();
+    });
+
+    admin.addEventListener('click', async () => {
+      const res = await fetch('/api/admin/usuarios', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      out2.textContent = await res.text();
+    });
+  </script>
+</body>
+</html>

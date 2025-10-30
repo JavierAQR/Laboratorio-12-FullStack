@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Registro</title></head>
+<body>
+  <h2>Registro</h2>
+  <form id="f">
+    <input name="email" type="email" placeholder="email" required />
+    <input name="password" type="password" placeholder="password" required />
+    <select name="role">
+      <option value="user" selected>user</option>
+      <option value="admin">admin</option>
+    </select>
+    <button>Registrar</button>
+  </form>
+  <pre id="out"></pre>
+  <script>
+    const f = document.getElementById('f'), out = document.getElementById('out');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(f);
+      const payload = Object.fromEntries(form.entries());
+      const res = await fetch('/auth/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      out.textContent = await res.text();
+    });
+  </script>
+</body>
+</html>
