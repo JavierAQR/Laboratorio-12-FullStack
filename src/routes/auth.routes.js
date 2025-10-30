@@ -5,32 +5,32 @@ const pool = require("../db");
 const { signAccessToken } = require("../utils/token");
 
 router.post(
-  "/register",
-  body("email").isEmail().withMessage("Email inválido"),
-  body("password").isLength({ min: 6 }).withMessage("Mínimo 6 caracteres"),
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    const { email, password, role } = req.body;
-    try {
-      const [rows] = await pool.query("SELECT id FROM usuarios WHERE email=?", [email]);
-      if (rows.length) {
-        return res.status(409).json({ error: "Email ya registrado" });
+    "/register",
+    body("email").isEmail().withMessage("Email inválido"),
+    body("password").isLength({ min: 6 }).withMessage("Mínimo 6 caracteres"),
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
       }
-      const password_hash = await bcrypt.hash(password, 10);
-      const insert = await pool.query(
-        "INSERT INTO usuarios (email, password_hash, role) VALUES (?, ?, ?)",
-        [email, password_hash, role === "admin" ? "admin" : "user"]
-      );
-      return res.status(201).json({ message: "Usuario registrado" });
-    } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: "Error del servidor" });
+      const { email, password, role } = req.body;
+      try {
+        const [rows] = await pool.query("SELECT id FROM usuarios WHERE email=?", [email]);
+        if (rows.length) {
+          return res.status(409).json({ error: "Email ya registrado" });
+        }
+        const password_hash = await bcrypt.hash(password, 10);
+        const [result] = await pool.query(
+          "INSERT INTO usuarios (email, password_hash, role) VALUES (?, ?, ?)",
+          [email, password_hash, role === "admin" ? "admin" : "user"]
+        );
+        return res.status(201).json({ message: "Usuario registrado", insertId: result.insertId });
+      } catch (e) {
+        console.error("REGISTER ERROR:", e);
+        return res.status(500).json({ error: e.message || "Error del servidor" });
+      }
     }
-  }
-);
+  );
 
 router.post(
   "/login",
